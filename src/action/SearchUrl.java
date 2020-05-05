@@ -5,6 +5,7 @@ import model.HeyBean;
 import org.apache.struts2.interceptor.SessionAware;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -81,8 +82,13 @@ public class SearchUrl extends ActionSupport implements SessionAware {
     }
 
     public HeyBean getHeyBean() {
-        if(!session.containsKey("heyBean"))
-            this.setHeyBean(new HeyBean());
+        if(!session.containsKey("heyBean")) {
+            try {
+                this.setHeyBean(new HeyBean());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         return (HeyBean) session.get("heyBean");
     }
 

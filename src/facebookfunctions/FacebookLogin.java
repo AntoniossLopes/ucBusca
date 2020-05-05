@@ -17,18 +17,23 @@ public class FacebookLogin extends ActionSupport implements SessionAware {
         System.out.println(code);
         result = this.getHeyBean().loginFB(code);
         session.put("username", result.get(0));
-        session.put("admin",result.get(1));
         session.put("password", result.get(2));
         session.put("loggedin", true); // this marks the user as logged in
         session.put("id",result.get(2));
         session.put("token",result.get(3));
+        session.put("admin",result.get(1));
         session.put("hasNotification", true);
         return SUCCESS;
     }
 
     public HeyBean getHeyBean() {
-        if(!session.containsKey("heyBean"))
-            this.setHeyBean(new HeyBean());
+        if(!session.containsKey("heyBean")) {
+            try {
+                this.setHeyBean(new HeyBean());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         return (HeyBean) session.get("heyBean");
     }
 

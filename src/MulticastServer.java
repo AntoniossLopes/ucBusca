@@ -28,17 +28,19 @@ public class MulticastServer extends Thread {
 
     //vao servir para ir buscar os atuais
     private ArrayList<Word> popular_search = new ArrayList<>();
-    private Map<Integer,String> ids_mul = Collections.synchronizedMap(new HashMap<>());
+    private Map<Integer, String> ids_mul = Collections.synchronizedMap(new HashMap<>());
     private List<String> auxiliar_ids = Collections.synchronizedList(new ArrayList<>());
-    private Map<Integer,String> ips_mul = Collections.synchronizedMap(new HashMap<>());
+    private Map<Integer, String> ips_mul = Collections.synchronizedMap(new HashMap<>());
 
     public static void main(String[] args) {
         //Pede para Criar server
+
         System.out.println("Server ID: ");
         Scanner ln = new Scanner(System.in);
-        int x = ln.nextInt();
 
+        int x = ln.nextInt();
         MulticastServer server1 = new MulticastServer(x);
+
         server1.start();
 
     }
@@ -100,8 +102,8 @@ public class MulticastServer extends Thread {
 
 
             //adiciona o ip na hashmap com ids e respetivos ips
-            ips_mul.put(no,this.ip);
-            String broadcast = "type|serverid;ID|" + this.no+";IP|"+this.ip+";";
+            ips_mul.put(no, this.ip);
+            String broadcast = "type|serverid;ID|" + this.no + ";IP|" + this.ip + ";";
             byte[] bufbroad = broadcast.getBytes();
 
             //envia para a rede o seu id e o IP para que os outro servers saibam que esta ativo
@@ -200,7 +202,7 @@ public class MulticastServer extends Thread {
                         if (provisorio_sites.size() != 0) {
                             buildInfo.append("popular_list|url_list;");
                             int i = 0;
-                            buildInfo.append("item_count|" + (provisorio_sites.size()-1) + ";");
+                            buildInfo.append("item_count|" + (provisorio_sites.size() - 1) + ";");
                             for (Site site : provisorio_sites) {
                                 if (i == 10) {
                                     break;
@@ -220,11 +222,11 @@ public class MulticastServer extends Thread {
 
                         if (popular_search.size() != 0) {
                             int i = 0;
-                            if(popular_search.size() > 10){
+                            if (popular_search.size() > 10) {
                                 buildInfo.append("popular_list|word_list;").append("item_count|" + 10 + ";");
+                            } else {
+                                buildInfo.append("popular_list|word_list;").append("item_count|" + (popular_search.size()) + ";");
                             }
-                            else{
-                            buildInfo.append("popular_list|word_list;").append("item_count|" + (popular_search.size()) + ";");}
                             for (Word word : popular_search) {
                                 if (i == 10) {
                                     break;
@@ -295,7 +297,7 @@ public class MulticastServer extends Thread {
                     case "type|kill":
                         //servers removem o id recebido das suas listas
                         String[] killID = aux0[1].split("\\|");
-                        if(ids_mul.containsKey(Integer.parseInt(killID[1]))) {
+                        if (ids_mul.containsKey(Integer.parseInt(killID[1]))) {
                             if (ids_mul.get(Integer.parseInt(killID[1])).equals("main")) {
                                 auxiliar_ids.remove(killID[1]);
                                 ids_mul.remove(Integer.parseInt(killID[1]));
@@ -304,7 +306,7 @@ public class MulticastServer extends Thread {
                                 ids_mul.replace(novomaine, "main");
 
                                 if (no == novomaine) {
-                                    if(contador>0 && contador<profundidadeMax){
+                                    if (contador > 0 && contador < profundidadeMax) {
                                         RecursiveSearch startingnew = new RecursiveSearch(no);
                                         startingnew.start();
                                     }
@@ -324,8 +326,8 @@ public class MulticastServer extends Thread {
                         if (!auxiliar_ids.contains(serverupID[1])) {
                             auxiliar_ids.add(serverupID[1]);
                             int z = Integer.parseInt(serverupID[1]);
-                            if(!ips_mul.containsKey(z)){
-                                ips_mul.put(z,serverIP[1]);
+                            if (!ips_mul.containsKey(z)) {
+                                ips_mul.put(z, serverIP[1]);
                             }
                             if (z != no) {
                                 ids_mul.put(z, "online");
@@ -358,23 +360,21 @@ public class MulticastServer extends Thread {
                         String send = "type|loginfb;";
                         int z = 0;
                         for (User user : users) {
-                            if(user.getFbID() == null)
-                            {
+                            if (user.getFbID() == null) {
                                 continue;
                             }
-                            if(user.getFbID().equals(fb[1]))
-                            {
+                            if (user.getFbID().equals(fb[1])) {
                                 z = 1;
-                                send = send+"username|"+user.getNome()+
-                                        ";admin|"+user.isAdmin()+
-                                        ";idfb|"+user.getFbID()+";token|"+user.getFbToken();
+                                send = send + "username|" + user.getNome() +
+                                        ";admin|" + user.isAdmin() +
+                                        ";idfb|" + user.getFbID() + ";token|" + user.getFbToken();
                                 break;
                             }
                         }
-                        if(z == 0){
-                            send = send+"message|not found;" ;
+                        if (z == 0) {
+                            send = send + "message|not found;";
                         }
-                        System.out.println(send);
+
                         byte[] bufferfb = send.getBytes();
                         DatagramPacket replayId = new DatagramPacket(bufferfb, bufferfb.length, this.packet.getAddress(), my_PORT);
                         try {
@@ -383,7 +383,6 @@ public class MulticastServer extends Thread {
                             e.printStackTrace();
                         }
                         break;
-
 
 
                     case "type|giveadmin":
@@ -432,8 +431,9 @@ public class MulticastServer extends Thread {
                                     e.printStackTrace();
                                 }
                             } else {
-                                urls_total.add(url[1]);
-                                System.out.println("Add na queue do " + no);
+                                SearchUrls(url[1]);
+                                RecursiveSearch main = new RecursiveSearch(no);
+                                main.start();
                                 String success = "type|confirm;message|Successfully indexed new URL!";
                                 byte[] buffsucccess = success.getBytes();
                                 DatagramPacket replysucces = new DatagramPacket(buffsucccess, buffsucccess.length, this.packet.getAddress(), my_PORT);
@@ -637,7 +637,6 @@ public class MulticastServer extends Thread {
                         }
 
                         break;
-
                     case "type|register":
                         //regista novo user , caso este nao exista
                         String[] nome1 = aux0[1].split("\\|");
@@ -684,7 +683,72 @@ public class MulticastServer extends Thread {
                         }
                         System.out.println("User: " + logoutUser[1] + " logout.....");
                         break;
-
+                    case "type|notification":
+                        String[] nome3 = aux0[1].split("\\|");
+                        int q = 0;
+                        try {
+                            while (!users.get(q).getNome().equals(nome3[1])) {
+                                q++;
+                            }
+                        } catch (IndexOutOfBoundsException e) {
+                            q--;
+                        }
+                        if (users.get(q).getNotification() != null) {
+                            String sendingM = "user|" + nome3[1] + ";notification|" + users.get(q).getNotification() + ";";
+                            byte[] buff2 = sendingM.getBytes();
+                            DatagramPacket replay2 = new DatagramPacket(buff2, buff2.length, this.packet.getAddress(), my_PORT);
+                            try {
+                                socket.send(replay2);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            users.get(q).setNotification(null);
+                        } else {
+                            String sendingM = "user|" + nome3[1] + ";notification|" + users.get(q).getNotification() + ";";
+                            byte[] buff2 = sendingM.getBytes();
+                            DatagramPacket replay2 = new DatagramPacket(buff2, buff2.length, this.packet.getAddress(), my_PORT);
+                            try {
+                                socket.send(replay2);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        UserRead save = new UserRead();
+                        save.escreveUsers(users);
+                        break;
+                    case "type|setnotification":
+                        String[] nome10 = aux0[1].split("\\|");
+                        String[] notification = aux0[2].split("\\|");
+                        int w = 0;
+                        UserRead saveAdmin = new UserRead();
+                        try {
+                            while (!users.get(w).getNome().equals(nome10[1])) {
+                                w++;
+                            }
+                            users.get(w).setNotification(notification[1]);
+                            saveAdmin.escreveUsers(users);
+                        } catch (IndexOutOfBoundsException e) {
+                            w--;
+                        }
+                        String sending12 = "";
+                        byte[] buff12 = sending12.getBytes();
+                        DatagramPacket replay12 = new DatagramPacket(buff12, buff12.length, this.packet.getAddress(), my_PORT);
+                        try {
+                            socket.send(replay12);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "type|islogged":
+                        String sending5 = "user|teste;status|true;";
+                        byte[] buff5 = sending5.getBytes();
+                        DatagramPacket replay5 = new DatagramPacket(buff5, buff5.length, this.packet.getAddress(), my_PORT);
+                        try {
+                            socket.send(replay5);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     case "type|login":
                         //muda o estado do user para login, em caso de nao existe ou passsword esteja errada envia para o RMI que deu erro
                         String[] nome2 = aux0[1].split("\\|");
@@ -692,7 +756,7 @@ public class MulticastServer extends Thread {
                         String verify = checkUser(nome2[1], password2[1]);
                         System.out.println("CHECKING USER " + verify);
                         if (verify.equals("Done")) {
-                            String fbId = null ;
+                            String fbId = null;
                             String fbToken = null;
                             boolean state = false;
                             for (User useraux : users) {
@@ -703,7 +767,7 @@ public class MulticastServer extends Thread {
                                     useraux.login();
                                 }
                             }
-                            String sendingM = "user|" + nome2[1] + ";admin|" + state+";id|"+fbId+";token|"+fbToken + ";Welcome to ucBusca";
+                            String sendingM = "user|" + nome2[1] + ";admin|" + state + ";id|" + fbId + ";token|" + fbToken + ";Welcome to ucBusca";
                             byte[] buff2 = sendingM.getBytes();
                             DatagramPacket replay2 = new DatagramPacket(buff2, buff2.length, this.packet.getAddress(), my_PORT);
                             try {
@@ -770,17 +834,17 @@ public class MulticastServer extends Thread {
                         String[] getusername = aux0[1].split("\\|");
                         String[] getUrl = aux0[2].split("\\|");
                         insertHistory(getusername[1], getUrl[1]);
-                        String nomeURL = (getUrl[1]);
+                        String nomeURL = "http://".concat(getUrl[1]);
                         HashSet<String> sendingUrls = new HashSet<>();
                         StringBuilder sendUrls = new StringBuilder();
 
                         //procura o site  e quem aponta para ele
                         for (Site site : listaSite) {
                             System.out.println(site.getUrl());
-                                if(nomeURL.equals(site.getUrl())){
-                                    sendingUrls = site.getUrlPointing();
-                                    System.out.println(site.getUrlPointing());
-                                    break;
+                            if (nomeURL.equals(site.getUrl())) {
+                                sendingUrls = site.getUrlPointing();
+                                System.out.println(site.getUrlPointing());
+                                break;
                             }
                         }
                         if (!sendingUrls.isEmpty()) {
@@ -806,7 +870,6 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
      * @param word palavra procurada pelo user
      * @return lista de sites que contenham a palavra
      */
@@ -836,57 +899,59 @@ public class MulticastServer extends Thread {
 
         public void run() {
 
-                if (ids_mul.get(no).equals("main") && contador<profundidadeMax) {
-                    System.out.println("Starting to Search...........");
-                    System.out.println("SIZE DA LISTA:"+urls_total.size());
-                    System.out.println(urls_total.toString());
-                    try {
-                        SearchRecursive(urls_total.size());
-                    } catch (InterruptedException e) {
-                        System.out.println("SHUTTING DOWN " + no);
-                        for (String x : auxiliar_ids) {
-                            int y = Integer.parseInt(x);
-                            if (y != no) {
-                                TCPclient broadtcp = new TCPclient(ips_mul.get(y), TCP_PORT + y, "KILL");
-                                broadtcp.start();
-                            }
+            if (ids_mul.get(no).equals("main") && contador < profundidadeMax) {
+                System.out.println("Starting to Search...........");
+                System.out.println("SIZE DA LISTA:" + urls_total.size());
+                System.out.println(urls_total.toString());
+                try {
+                    SearchRecursive(urls_total.size());
+                } catch (InterruptedException e) {
+                    System.out.println("SHUTTING DOWN " + no);
+                    for (String x : auxiliar_ids) {
+                        int y = Integer.parseInt(x);
+                        if (y != no) {
+                            TCPclient broadtcp = new TCPclient(ips_mul.get(y), TCP_PORT + y, "KILL");
+                            broadtcp.start();
                         }
                     }
-                    Search novo = new Search();
-                    novo.escreveObjeto(listaSite, urls_total, urlMap, pais);
-                    System.out.println("saving in text_file");
-                    contador = contador+1;
-                    System.out.println("CONTADOR: "+contador);
-                    //cria a thread para mandar para os outros
-                    ArrayList<Integer> ids = new ArrayList<>();
-                    for (int key : ids_mul.keySet()) {
-                            if (!ids_mul.get(key).equals("offline")) {
-                                ids.add(key);
-                                if(key != no) {
-                                    TCPclient tcp1 = new TCPclient(ips_mul.get(key), TCP_PORT + key, "UPDATE");
-                                    tcp1.start();
-                                }
-                            }
-                    }
-                    System.out.println("Server :" + no + " sending new main..........");
-                    for (int i : ids) {
-                        TCPclient tcp2 = new TCPclient(ips_mul.get(i), TCP_PORT + i, "NEW");
-                        tcp2.start();
-                    }
-                    System.out.printf("SAINDO DA THREAD SKRTTTTTTTTTTTTTTTT");
-                    System.out.println("");
-                    System.out.println("");
-                    Thread.currentThread().interrupt();
-                    return;
                 }
+                Search novo = new Search();
+                novo.escreveObjeto(listaSite, urls_total, urlMap, pais);
+                System.out.println("saving in text_file");
+                contador = contador + 1;
+                System.out.println("CONTADOR: " + contador);
+                //cria a thread para mandar para os outros
+                ArrayList<Integer> ids = new ArrayList<>();
+                for (int key : ids_mul.keySet()) {
+                    if (!ids_mul.get(key).equals("offline")) {
+                        ids.add(key);
+                        if (key != no) {
+                            TCPclient tcp1 = new TCPclient(ips_mul.get(key), TCP_PORT + key, "UPDATE");
+                            tcp1.start();
+                        }
+                    }
+                }
+                System.out.println("Server :" + no + " sending new main..........");
+                for (int i : ids) {
+                    TCPclient tcp2 = new TCPclient(ips_mul.get(i), TCP_PORT + i, "NEW");
+                    tcp2.start();
+                }
+                System.out.printf("SAINDO DA THREAD SKRTTTTTTTTTTTTTTTT");
+                System.out.println("");
+                System.out.println("");
+                Thread.currentThread().interrupt();
+                return;
             }
         }
+    }
+
 
     /**
      * TCPServer ira processar Update no caso de indexacao, ou seja, o server main envia toda a informacao de urls, users, sites para estarem todos sincronizados,
      * NEW  escolha de novo server que ira ser main
      * BROADCAST quando server entra na rede, o mais antigo envia toda a sua informacao para estarem todos sincronizados
      */
+
 
     private class TCPServer extends Thread {
         ServerSocket socket = null;
@@ -917,11 +982,11 @@ public class MulticastServer extends Thread {
                         ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
                         Object message = ois.readUTF();
                         if (message.equals("UPDATE")) {
-                            contador = (Integer)ois.readObject();
+                            contador = (Integer) ois.readObject();
                             listaSite = (List<Site>) ois.readObject();
                             urlMap = (Map<String, HashSet>) ois.readObject();
                             urls_total = (List<String>) ois.readObject();
-                            pais = (Map<String, HashSet<String>>)ois.readObject();
+                            pais = (Map<String, HashSet<String>>) ois.readObject();
                             System.out.println("UPDATED INFO....." + no);
                         }
                         if (message.equals("NEW")) {
@@ -951,8 +1016,8 @@ public class MulticastServer extends Thread {
                             listaSite = (ArrayList<Site>) ois.readObject();
                             urlMap = (HashMap<String, HashSet>) ois.readObject();
                             urls_total = (List<String>) ois.readObject();
-                            pais = (HashMap<String, HashSet<String>>)ois.readObject();
-                            popular_search = (ArrayList<Word>)ois.readObject();
+                            pais = (HashMap<String, HashSet<String>>) ois.readObject();
+                            popular_search = (ArrayList<Word>) ois.readObject();
                             auxiliar_ids = temporary;
                             ids_mul = temp;
                         }
@@ -963,7 +1028,6 @@ public class MulticastServer extends Thread {
             }
         }
     }
-
 
 
     private class TCPclient extends Thread {
@@ -1068,8 +1132,7 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
-     * @param nome que ira ser inserido na lista de users
+     * @param nome     que ira ser inserido na lista de users
      * @param password que ira ser atribuida ao user
      * @return caso seja bem sucedida Done, em caso de ja existir um User com esse nome da Error
      */
@@ -1088,8 +1151,7 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
-     * @param nome nome do user para dar login
+     * @param nome     nome do user para dar login
      * @param password associada a esse user
      * @return em caso de nao existir Error, Password ser diferente Wrong Password, Done se for bem sucedido
      */
@@ -1107,7 +1169,6 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
      * @param nome do user para inserir no historico
      * @param word que ira ser inserido no historico
      */
@@ -1123,7 +1184,6 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
      * @param maxSearch numero maximo de iteracoes de indexaçao
      */
 
@@ -1133,8 +1193,7 @@ public class MulticastServer extends Thread {
         }
         sleep(2000);
         int contador = 0;
-        while(contador < maxSearch)
-        {
+        while (contador < maxSearch) {
             System.out.println(urls_total.get(0));
             urls_total.remove(0);
             contador++;
@@ -1142,7 +1201,6 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
      * @param url que ira ser usado para fazer indexaçao, caso seja repetido adiciona quem o tenha referenciado, caso seja novo faz a indexacao normal
      */
 
@@ -1161,7 +1219,7 @@ public class MulticastServer extends Thread {
                 }
             }
         }
-        if(flag == 0) {
+        if (flag == 0) {
             try {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.select("a[href]");
@@ -1173,7 +1231,8 @@ public class MulticastServer extends Thread {
                     int i = 0;
 
                     while (z < 10) {
-
+                        if (i == links.size())
+                            break;
                         if (links.get(i).attr("href").startsWith("#")) {
                             i = i + 1;
                         }
@@ -1236,7 +1295,7 @@ public class MulticastServer extends Thread {
                 Site novo = new Site(url, title, text, mapa);
                 listaSite.add(novo);
 
-                for(String pai: pais.keySet()) {
+                for (String pai : pais.keySet()) {
                     if (pais.get(pai).contains(url)) {
                         novo.addReference(pai);
                     }
@@ -1259,11 +1318,10 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
-     * @return  IP da maquina
+     * @return IP da maquina
      */
-    public String getIP(){
-        try(final DatagramSocket socket = new DatagramSocket()){
+    public String getIP() {
+        try (final DatagramSocket socket = new DatagramSocket()) {
             int randomNum = ThreadLocalRandom.current().nextInt(1500, 2000 + 1);
             socket.connect(InetAddress.getByName("8.8.8.8"), randomNum);
             return socket.getLocalAddress().getHostAddress();
@@ -1276,7 +1334,6 @@ public class MulticastServer extends Thread {
     }
 
     /**
-     *
      * @param text texto obtido no body do url indexado
      * @return hashmap com as palavras e o numero de ocorrencias
      */

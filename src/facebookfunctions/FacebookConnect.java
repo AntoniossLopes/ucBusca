@@ -18,18 +18,19 @@ public class FacebookConnect extends ActionSupport implements SessionAware {
         System.out.println(code);
         String username = (String) session.get("username");
         result = this.getHeyBean().connectFb(code,username);
-        if(result.get(0).equals("ERROR"))
-        {
-            return SUCCESS;
-        }
         session.put("id",result.get(0));
         session.put("token",result.get(1));
         return SUCCESS;
     }
 
     public HeyBean getHeyBean() {
-        if(!session.containsKey("heyBean"))
-            this.setHeyBean(new HeyBean());
+        if(!session.containsKey("heyBean")) {
+            try {
+                this.setHeyBean(new HeyBean());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         return (HeyBean) session.get("heyBean");
     }
 

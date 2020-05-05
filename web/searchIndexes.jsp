@@ -34,13 +34,12 @@
         }
 
         function onOpen(event) {
-            <c:if test="${session.hasNotification == true}">
-            websocket.send("ola mpt");
-            </c:if>
+            websocket.send("${session.username}");
+
 
         }
         function onMessage(message) { // print the received message
-            writeToHistory(message.data);
+            writeToHistory("NOW YOU HAVE ADMIN RIGHTS");
         }
 
         function onClose(event) {
@@ -58,6 +57,7 @@
 
 
     </script>
+
 
 
 </head>

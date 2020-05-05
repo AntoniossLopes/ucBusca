@@ -62,8 +62,13 @@ public class IndexUrlAction extends ActionSupport implements SessionAware {
     }
 
     public HeyBean getHeyBean() {
-        if(!session.containsKey("heyBean"))
-            this.setHeyBean(new HeyBean());
+        if(!session.containsKey("heyBean")) {
+            try {
+                this.setHeyBean(new HeyBean());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         return (HeyBean) session.get("heyBean");
     }
 

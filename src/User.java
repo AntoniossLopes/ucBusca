@@ -10,38 +10,38 @@ public class User implements Serializable {
     private String nome;
     private String password;
     private boolean Admin;
-    private boolean state ;
-    private String fbToken ;
-    private String fbID ;
+    private boolean state;
+    private String fbToken;
+    private String fbID;
     private ArrayList<String> searchHistory = new ArrayList<>();
+    private String notification;
 
-    public User(int id,String nome, String password)
-    {
-        if(id == 0)
-        {
+
+    public User(int id, String nome, String password) {
+        if (id == 0) {
             this.id = id;
             this.nome = nome;
             this.password = password;
-            this.fbToken = null ;
-            this.fbID = null ;
-            Admin = true ;
-        }
-        else{
+            this.fbToken = null;
+            this.fbID = null;
+            Admin = true;
+        } else {
             this.id = id;
             this.nome = nome;
             this.password = password;
-            this.fbToken = null ;
-            this.fbID = null ;
-            Admin = false ;
+            this.fbToken = null;
+            this.fbID = null;
+            Admin = false;
         }
     }
 
-    public void login()
-    {
+    public void login() {
         this.state = true;
     }
 
-    public void logout(){this.state = false;}
+    public void logout() {
+        this.state = false;
+    }
 
     public int getId() {
         return id;
@@ -59,6 +59,7 @@ public class User implements Serializable {
         return fbToken;
     }
 
+
     public String getNome() {
         return nome;
     }
@@ -67,16 +68,23 @@ public class User implements Serializable {
         return password;
     }
 
-    public boolean isAdmin(){
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
+    }
+
+    public boolean isAdmin() {
         return Admin;
     }
 
-    public void makeAdmin(){
+    public void makeAdmin() {
         Admin = true;
     }
 
-    public void insertSearch(String search)
-    {
+    public void insertSearch(String search) {
         searchHistory.add(search);
     }
 

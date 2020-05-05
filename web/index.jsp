@@ -1,7 +1,7 @@
-<%@ taglib prefix="s" uri="/struts-tags"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="s" uri="/struts-tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-         pageEncoding="ISO-8859-1"%>
+         pageEncoding="ISO-8859-1" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -34,13 +34,16 @@
         }
 
         function onOpen(event) {
-            <c:if test="${session.hasNotification == true}">
-                 websocket.send("ola mpt");
+            websocket.send("${session.username}");
+            <c:if test="${session.notification != 'null' && not empty session.notification}">
+            writeToHistory("${session.notification}");
+            <c:set var = "notification" scope = "session" value = "null"/>
             </c:if>
 
         }
+
         function onMessage(message) { // print the received message
-            writeToHistory(message.data);
+            writeToHistory("NOW YOU HAVE ADMIN RIGHTS");
         }
 
         function onClose(event) {
@@ -72,21 +75,21 @@
             <c:choose>
                 <c:when test="${session.loggedin == true}">
                     <li><a href="<s:url action="history" />">MyHistory</a></li>
-                    <li><a href="searchIndexes.jsp">Page Indexes</a> </li>
+                    <li><a href="searchIndexes.jsp">Page Indexes</a></li>
                 </c:when>
             </c:choose>
             <c:choose>
                 <c:when test="${session.admin == true}">
                     <li><a href="indexurl.jsp">Index Url</a></li>
                     <li><a href="<s:url action="printadmins"/> ">Give Admin</a></li>
-                    <li><a href="<s:url action="adminPageAction"/> ">Admin Page</a> </li>
+                    <li><a href="<s:url action="adminPageAction"/> ">Admin Page</a></li>
                 </c:when>
             </c:choose>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <c:choose>
                 <c:when test="${session.loggedin == true}">
-                    <li><a href="<s:url action="logout"/> ">Logout</a> </li>
+                    <li><a href="<s:url action="logout"/> ">Logout</a></li>
                 </c:when>
                 <c:otherwise>
                     <li><a href="register.jsp">Sign Up</a></li>
@@ -110,7 +113,7 @@
     </c:choose>
 
     <c:choose>
-        <c:when test ="${session.id == null && session.loggedin == true}" >
+        <c:when test="${session.id == null && session.loggedin == true}">
             <p><a href="${session.url}">Connect Facebook</a></p><br>
         </c:when>
     </c:choose>
